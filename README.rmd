@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This repository contains the code to run the power analysis for the EGAP Grant Application "Criminal governance amid the COVID-19 pandemic" by Sandra Ley, Lucia Tiscornia and Tiago Ventura.
 
-We use the `DeclareDesign` framework to for formally declare our research design, and to diagnose the power analysis of our experiment. For more information about `declaredesign` see [here](https://declaredesign.org/) and the [book tutorial](https://book.declaredesign.org/index.html) accompanying the package. 
+We use the `DeclareDesign` framework to for formally declare our research design, and to diagnose the power analysis of our experiment. For more information about `DeclareDesign` see [here](https://declaredesign.org/) and the [book tutorial](https://book.declaredesign.org/index.html) accompanying the package. 
 
 ## Abstract
 
@@ -123,9 +123,9 @@ results = grid %>%
 
 ## Results
 
-We present below the results for the power analysis after varying our three inputs: sample size, effect size for treatment 1 and treatment 2. 
+We present below the results for the power analysis after varying our three inputs: sample size, effect size for treatment 1 and treatment 2. Power results suggest that with a treatment effect larger than .15, on both treatment, a sample of size of 2.500 guarantees more than 80% of power.
 
-
+![](power_analysis.png)
 
 
 

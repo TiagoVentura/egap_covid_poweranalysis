@@ -167,6 +167,11 @@ Results
 
 We present below the results for the power analysis after varying our
 three inputs: sample size, effect size for treatment 1 and treatment 2.
+Power results suggest that with a treatment effect larger than .15, on
+both treatment, a sample of size of 2.500 guarantees more than 80% of
+power.
+
+![](power_analysis.png)
 
 References
 ----------
