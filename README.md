@@ -133,6 +133,11 @@ Then, we create a function to rotate features of our design. Here, we
 rotate sample size, and effect sizer for the violent and non-violent
 interaction with OGCs.
 
+    #Diagnosis
+    grid <- expand_grid(N=seq(500, 2500, by =100),
+                          eff1=seq(0.05, 0.25, by =0.05),
+                          eff2=seq(0.15, 0.35, by =0.05))
+
 Simulations
 -----------
 
@@ -160,8 +165,8 @@ basic dataframe.
 Results
 -------
 
-We present below the results for power varying our three inputs: sample
-size, effect size for treatment 1 and treatment 2.
+We present below the results for the power analysis after varying our
+three inputs: sample size, effect size for treatment 1 and treatment 2.
 
 References
 ----------
