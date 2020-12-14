@@ -1,6 +1,6 @@
-Criminal governance amid the COVID-19 pandemic (Ley, Tiscornia and
-Ventura)
+Criminal governance amid the COVID-19 pandemic (EGAP GRANT)
 ================
+Sandra Ley, Lucia Tiscornia, and Tiago Ventura
 
 Power Analysis.
 ---------------

@@ -2,9 +2,7 @@
 title: "Criminal governance amid the COVID-19 pandemic (EGAP GRANT)"
 author: "Sandra Ley, Lucia Tiscornia, and Tiago Ventura"
 date: ""
-blogdown:github_document:
-    highlight: tango
-    keep_md: yes
+output: github_document
 ---
  
 
