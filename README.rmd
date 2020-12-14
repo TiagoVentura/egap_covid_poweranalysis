@@ -1,0 +1,134 @@
+---
+title: "Criminal governance amid the COVID-19 pandemic (Ley, Tiscornia and Ventura)"
+author: ""
+date: ""
+output: github_document
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Power Analysis. 
+
+
+This repository contains the code to run the power analysis for the EGAP Grant Application "Criminal governance amid the COVID-19 pandemic" by Sandra Ley, Lucia Tiscornia and Tiago Ventura.
+
+We use the `DeclareDesign` framework to for formally declare our research design, and to diagnose the power analysis of our experiment. For more information about `declaredesign` see [here](https://declaredesign.org/) and the [book tutorial](https://book.declaredesign.org/index.html) accompanying the package. 
+
+## Abstract
+
+During the COVID-19 pandemic, organized criminal groups (OCG) in Mexico adopted various strategies of social control to adapt their interests with the pandemic’s health risks.  Some adopted violent measures to enforce social distancing policies while others provided basic goods to ameliorate the economic consequences of the health crisis. What explains the variation in OCG governance strategies during the pandemic? To answer this question, we propose deploying an online survey combining two strategies to gather sensitive information: 1) respondents’ recruitment through Facebook Ads to access areas under OCG control, and 2) a list experiment to understand the extent and strategies of criminal control during the pandemic. Our research contributes to current knowledge about the manifestations of criminal governance regimes, providing insights to understand the effects of criminal governance on a wide range of behavioral outcomes.
+
+
+## Research Design
+
+Our main outcome of interest is variation in criminal strategies of social control: non-violent (e.g providing goods), or violent (e.g enforcing lockdowns). We propose using indirect methods to deploy a survey experiment as our measurement strategy. Following Magaloni et al. (2020), to gather individual evidence, we propose to conduct a list experiment embedded in an online survey design. By incorporating indirect questions, we can minimize risks to participants and risks of obtaining untruthful information (Gonzalez Ocantos et al. 2012, Magaloni et al. 2020).
+
+## Model
+
+**Model**: Our model includes subjects’ true exposure to violent and non-violent strategies used by criminal organizations during the pandemic in Mexico. Therefore, our list experiment has three assignment groups: a control group, and two treatment. The control group will read a list of three nonsensitive items, and the treatments will read the same three nonsensitive and a one sensitive item related, respectively, with exposure to a violent or non-violent strategy from a OCGs during the pandemic. 
+
+The potential outcomes model combines respondents' responses to three nonsensitive control items,  their exposure OGCs' actions during the pandemic, and whether respondents were assigned to see one of the treatments or the control list.
+
+**Inquiry**: Our estimand is the proportion of respondents exposed to violent or non-violent actions from OCGs
+
+**Data strategy**: To test our power, we vary the sample size of respondents, and the size of the effects for each treatment. Our model sample from between 500 up to 2.500 respondents from the Mexican population at random, then we randomly assign 1/3 for the control, treatment 1 and treatment 2, respectively. 
+
+**Answer strategy**: We estimate the proportion of truthful respondents exposed to violent or non-violent OCGs' actions using a simple linear model. As argued by  Blair and Imai, difference in means models are inefficient and more prone to bias, therefore, our power analysis should be consider a lower bound for possible estimators when dealing with list experiments. We use Magaloni et al (2020) as a beanchmark for the effect size of exposure to violent actions from OGCs, and we assume non-violent actions are more widespread, and therefore, with stricly larger effects compared to violent startegies. 
+
+## Design Declaration
+
+In the `DeclareDesign` framework, we start declaring our research design
+
+```{r eval=FALSE}
+library(DeclareDesign)
+library(tidyverse)
+
+# Model
+list_experiment <- function(N, eff1, eff2){
+  declare_population(
+    N = N,
+    U = rnorm(N),
+    Y_star_violence = rbinom(N, 1, prob=eff1),
+    Y_star_goods = rbinom(N, 1, prob=eff2), # Two treatments
+    X = rbinom(N, size = 3, prob = 0.5)
+  ) +
+    declare_estimand(violence = mean(Y_star_violence),
+                     goods= mean(Y_star_goods)) +
+    declare_assignment(num_arms = 3, conditions = c("control", "z_v", "z_g"),
+                       assignment_variable = "Z") +
+    declare_potential_outcomes(Y_list ~ Y_star_violence*(Z=="z_v") + Y_star_goods*(Z=="z_g")+ X ,
+                               conditions = c("control", "z_v", "z_g"),
+                               assignment_variable = "Z") +
+    declare_measurement(goods=ifelse(Z=="z_g", 1, 0),
+                        violence=ifelse(Z=="z_v", 1, 0)) +
+    declare_estimator(Y_list ~ violence + goods,
+                      model = lm_robust, term=TRUE, estimand=c("intercept", "violence", "goods"))
+}
+```
+
+## Diagnosands
+
+Declare the diagnosands of the research design using simulations. Diagnosands are a summary of the distribution of
+a diagnostic statistic. In our case, we are interested in the power of our experiment. 
+
+```{r eval=FALSE}
+diagnosands <- declare_diagnosands(
+  bias = mean(estimate - estimand),
+  rmse = sqrt(mean((estimate - estimand)^2)),
+  power = mean(p.value <= 0.05)
+)
+
+```
+
+## Expand the Design 
+
+Then, we create a function to rotate features of our design. Here, we rotate sample size, and effect sizer for the violent and non-violent interaction with OGCs. 
+
+## Simulations
+
+Simulate the diagnosands. Here we use features from  `purr` and `list-columns` to integrate the modeling process and simulation with our basic dataframe. 
+
+```{r eval=FALSE}
+
+# Diagnosands for different features
+grid <- grid %>%
+  rowwise() %>%
+  mutate(diagnosands=list(diagnosands),
+         design=list(list_experiment(N, eff1, eff2)),
+         diagnosands_res=list(diagnose_design(design,
+                                              diagnosands=diagnosands,
+                                              sims=500, bootstrap_sims = 500)),
+         diagnosands_df=map(diagnosands_res,"diagnosands_df")) 
+
+
+# Unnest to a single dataframe
+results = grid %>%
+  ungroup() %>%
+  mutate(res = map(diagnosands_res,"diagnosands_df"))%>%
+  unnest(res)
+
+```
+
+
+## Results
+
+We present below the results for power varying our three inputs: sample size, effect size for treatment 1 and treatment 2. 
+
+
+
+
+
+## References
+
+
+Blair, G., & Imai, K. (2012). Statistical analysis of list experiments. Political Analysis, 20(1), 47-77.
+
+Magaloni, B., Robles, G., Matanock, A., Díaz-Cayeros, A., & Romero, V. 2020. “Living in Fear: the Dynamics of extortion in Mexico’s Drug War.” Comparative Political Studies 53(7), 1124-1174.
+
+Graeme Blair, Jasper Cooper, Alexander Coppock, and Macartan Humphreys (2019). ``Declaring and Diagnosing Research Designs.'' American Political Science Review 113(3): 838-859. URL http://declaredesign.org/declare.pdf
+
+Gonzalez‐Ocantos, E., De Jonge, C. K., Meléndez, C., Osorio, J., & Nickerson, D. W. (2012). Vote buying and social desirability bias: Experimental evidence from Nicaragua. American Journal of Political Science, 56(1), 202-217.
+
